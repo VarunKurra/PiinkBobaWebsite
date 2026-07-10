@@ -113,7 +113,7 @@ export default function Hero() {
 
   return (
     <section ref={sectionRef} className="relative w-full overflow-hidden bg-white">
-      <div ref={containerRef} className="relative h-screen">
+      <div ref={containerRef} className="relative h-screen min-h-screen">
         <div className="absolute inset-0">
         <video
           ref={videoRef}
@@ -123,15 +123,19 @@ export default function Hero() {
           preload="auto"
           autoPlay={false}
           loop={false}
-          poster="/media/17742f711_generated_image.png"
+          poster="/poster.jpg"
           className={`absolute inset-0 w-full h-full object-cover object-right transition-opacity duration-700 ${videoReady ? "opacity-100" : "opacity-0"}`}
           onLoadedMetadata={() => {
             if (videoRef.current) {
               videoRef.current.currentTime = 0;
               videoRef.current.pause();
             }
-          }}
-        />
+          }}          onCanPlay={() => {
+            if (videoRef.current) {
+              videoRef.current.currentTime = 0;
+              videoRef.current.pause();
+            }
+          }}        />
       </div>
 
         <div className="absolute inset-0 bg-gradient-to-r from-white via-white/70 md:via-white/40 to-transparent" />
