@@ -16,7 +16,7 @@ export default function Navbar() {
       <header className={`sticky top-0 z-50 transition-all duration-500 ${location.pathname === "/" ? "bg-transparent border-transparent" : "bg-white/85 border-b border-black/10"}`}>
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6 md:px-10 h-20">
           <Magnetic>
-            <Link to="/" className="font-display font-extrabold text-2xl tracking-tight text-black" data-cursor-hover>
+            <Link to="/" className={`font-display font-extrabold text-2xl tracking-tight transition-colors ${location.pathname === "/" ? "text-white" : "text-black"}`} data-cursor-hover>
               PI<span className="text-primary">I</span>NK
             </Link>
           </Magnetic>
@@ -28,7 +28,13 @@ export default function Navbar() {
                   to={link.path}
                   data-cursor-hover
                   className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
-                    location.pathname === link.path ? "bg-black text-white" : "text-black hover:bg-secondary"
+                    location.pathname === link.path
+                      ? location.pathname === "/"
+                        ? "bg-white text-black"
+                        : "bg-black text-white"
+                      : location.pathname === "/"
+                        ? "text-white/90 hover:bg-white/15"
+                        : "text-black hover:bg-secondary"
                   }`}
                 >
                   {link.label}
@@ -44,7 +50,7 @@ export default function Navbar() {
                 target="_blank"
                 rel="noreferrer"
                 data-cursor-hover
-                className="bg-primary text-black font-bold text-sm px-6 py-3 rounded-full hover:bg-black hover:text-white transition-colors duration-300"
+                className={`font-bold text-sm px-6 py-3 rounded-full transition-colors duration-300 ${location.pathname === "/" ? "bg-white text-black hover:bg-black hover:text-white" : "bg-primary text-black hover:bg-black hover:text-white"}`}
               >
                 Order Now
               </a>

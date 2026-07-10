@@ -16,7 +16,7 @@ export default function Hero() {
   const reduced = useReducedMotion();
   const [isTouch, setIsTouch] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
-  const [navVisible, setNavVisible] = useState(false);
+  const [hasInteracted, setHasInteracted] = useState(false);
 
   useEffect(() => {
     setIsTouch(window.matchMedia("(pointer: coarse)").matches);
@@ -29,9 +29,7 @@ export default function Hero() {
     const handleCanPlay = () => {
       setVideoReady(true);
       video.currentTime = 0;
-      if (!reduced && !isTouch) {
-        video.play().catch(() => {});
-      }
+      video.pause();
     };
 
     if (video.readyState >= 2) {
@@ -69,27 +67,50 @@ export default function Hero() {
     if (!video) return;
 
     let trigger;
-    video.pause();
-    video.currentTime = 0;
+    let rafId;
+    let lastTime = 0;
+
+    const syncVideoToScroll = () => {
+      if (!video.duration) return;
+      const rect = sectionRef.current?.getBoundingClientRect();
+      const progress = Math.min(1, Math.max(0, 1 - rect.top / window.innerHeight));
+      const target = progress * video.duration;
+      const delta = target - video.currentTime;
+      if (Math.abs(delta) > 0.001) {
+        video.currentTime = target;
+      }
+    };
 
     const setup = () => {
       video.currentTime = 0;
+      video.pause();
       trigger = ScrollTrigger.create({
         trigger: sectionRef.current,
         start: "top top",
         end: "+=2800",
-        scrub: 0.8,
+        scrub: 0.2,
         pin: true,
-        anticipatePin: 1,
+        anticipatePin: 0.2,
         fastScrollEnd: true,
         onUpdate: (self) => {
           if (!video.duration) return;
           const target = self.progress * video.duration;
-          if (Math.abs(video.currentTime - target) > 0.02) {
+          if (Math.abs(video.currentTime - target) > 0.01) {
             video.currentTime = target;
           }
         },
+        onLeaveBack: () => {
+          video.currentTime = 0;
+          video.pause();
+        },
       });
+
+      const tick = () => {
+        syncVideoToScroll();
+        rafId = window.requestAnimationFrame(tick);
+      };
+
+      rafId = window.requestAnimationFrame(tick);
     };
 
     if (video.readyState >= 2) {
@@ -100,19 +121,20 @@ export default function Hero() {
 
     return () => {
       trigger && trigger.kill();
+      if (rafId) window.cancelAnimationFrame(rafId);
       video.removeEventListener("canplay", setup);
     };
   }, [reduced, isTouch]);
 
   useEffect(() => {
-    if (reduced || isTouch) return;
-    const onScroll = () => {
-      setNavVisible(window.scrollY > 80);
+    const handleInteraction = () => setHasInteracted(true);
+    window.addEventListener("wheel", handleInteraction, { passive: true });
+    window.addEventListener("touchmove", handleInteraction, { passive: true });
+    return () => {
+      window.removeEventListener("wheel", handleInteraction);
+      window.removeEventListener("touchmove", handleInteraction);
     };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [reduced, isTouch]);
+  }, []);
 
   const showStatic = reduced || isTouch;
 
@@ -129,6 +151,12 @@ export default function Hero() {
           loop={false}
           poster="/media/17742f711_generated_image.png"
           className={`absolute inset-0 w-full h-full object-cover object-right transition-opacity duration-700 ${videoReady ? "opacity-100" : "opacity-0"}`}
+          onLoadedMetadata={() => {
+            if (videoRef.current) {
+              videoRef.current.currentTime = 0;
+              videoRef.current.pause();
+            }
+          }}
         />
       </div>
 
