@@ -13,10 +13,10 @@ const VIDEO_URL = "/media/PiinkTeaVideo.mp4";
 export default function Hero() {
   const sectionRef = useRef(null);
   const videoRef = useRef(null);
+  const containerRef = useRef(null);
   const reduced = useReducedMotion();
   const [isTouch, setIsTouch] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
-  const [hasInteracted, setHasInteracted] = useState(false);
 
   useEffect(() => {
     setIsTouch(window.matchMedia("(pointer: coarse)").matches);
@@ -64,38 +64,25 @@ export default function Hero() {
   useEffect(() => {
     if (reduced || isTouch) return;
     const video = videoRef.current;
-    if (!video) return;
-
-    let trigger;
-    let rafId;
-    let lastTime = 0;
-
-    const syncVideoToScroll = () => {
-      if (!video.duration) return;
-      const rect = sectionRef.current?.getBoundingClientRect();
-      const progress = Math.min(1, Math.max(0, 1 - rect.top / window.innerHeight));
-      const target = progress * video.duration;
-      const delta = target - video.currentTime;
-      if (Math.abs(delta) > 0.001) {
-        video.currentTime = target;
-      }
-    };
+    const container = containerRef.current;
+    if (!video || !container) return;
 
     const setup = () => {
       video.currentTime = 0;
       video.pause();
-      trigger = ScrollTrigger.create({
-        trigger: sectionRef.current,
+
+      ScrollTrigger.create({
+        trigger: container,
         start: "top top",
-        end: "+=2800",
-        scrub: 0.2,
+        end: "+=2200",
+        scrub: 0.5,
         pin: true,
-        anticipatePin: 0.2,
-        fastScrollEnd: true,
+        pinSpacing: false,
+        anticipatePin: 0.1,
         onUpdate: (self) => {
           if (!video.duration) return;
           const target = self.progress * video.duration;
-          if (Math.abs(video.currentTime - target) > 0.01) {
+          if (Math.abs(video.currentTime - target) > 0.02) {
             video.currentTime = target;
           }
         },
@@ -104,13 +91,6 @@ export default function Hero() {
           video.pause();
         },
       });
-
-      const tick = () => {
-        syncVideoToScroll();
-        rafId = window.requestAnimationFrame(tick);
-      };
-
-      rafId = window.requestAnimationFrame(tick);
     };
 
     if (video.readyState >= 2) {
@@ -120,27 +100,21 @@ export default function Hero() {
     }
 
     return () => {
-      trigger && trigger.kill();
-      if (rafId) window.cancelAnimationFrame(rafId);
+      ScrollTrigger.getAll().forEach((st) => {
+        if (st.trigger === container) {
+          st.kill();
+        }
+      });
       video.removeEventListener("canplay", setup);
     };
   }, [reduced, isTouch]);
 
-  useEffect(() => {
-    const handleInteraction = () => setHasInteracted(true);
-    window.addEventListener("wheel", handleInteraction, { passive: true });
-    window.addEventListener("touchmove", handleInteraction, { passive: true });
-    return () => {
-      window.removeEventListener("wheel", handleInteraction);
-      window.removeEventListener("touchmove", handleInteraction);
-    };
-  }, []);
-
   const showStatic = reduced || isTouch;
 
   return (
-    <section ref={sectionRef} className="relative w-full h-screen overflow-hidden bg-white">
-      <div className="absolute inset-0">
+    <section ref={sectionRef} className="relative w-full overflow-hidden bg-white">
+      <div ref={containerRef} className="relative h-screen">
+        <div className="absolute inset-0">
         <video
           ref={videoRef}
           src={VIDEO_URL}
@@ -160,38 +134,39 @@ export default function Hero() {
         />
       </div>
 
-      <div className="absolute inset-0 bg-gradient-to-r from-white via-white/70 md:via-white/40 to-transparent" />
-      <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white via-white/80 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-white via-white/70 md:via-white/40 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white via-white/80 to-transparent" />
 
-      <div className="relative z-20 h-full flex items-center px-6 md:px-16">
-        <div className="w-full md:w-1/2">
-          <div className="overflow-hidden">
-            <h1 className="hero-line font-display font-extrabold text-black text-[15vw] md:text-[6vw] leading-[0.92] tracking-tight">SIP</h1>
+        <div className="relative z-20 h-full flex items-center px-6 md:px-16">
+          <div className="w-full md:w-1/2">
+            <div className="overflow-hidden">
+              <h1 className="hero-line font-display font-extrabold text-black text-[15vw] md:text-[6vw] leading-[0.92] tracking-tight">SIP</h1>
+            </div>
+            <div className="overflow-hidden">
+              <h1 className="hero-line font-display font-extrabold text-primary text-[15vw] md:text-[6vw] leading-[0.92] tracking-tight">SOMETHING</h1>
+            </div>
+            <div className="overflow-hidden">
+              <h1 className="hero-line font-display font-extrabold text-black text-[15vw] md:text-[6vw] leading-[0.92] tracking-tight">PINK.</h1>
+            </div>
+            <p className="hero-line mt-6 text-base md:text-lg text-black/70 max-w-sm font-body leading-relaxed">
+              Pink drinks, bold flavor, and a shop that feels like the fun part of the city.
+            </p>
+            <Link
+              to="/menu"
+              data-cursor-hover
+              className="hero-line inline-block mt-8 bg-black text-white font-semibold px-8 py-4 rounded-full hover:bg-primary hover:text-black transition-colors duration-300 shadow-[0_12px_40px_rgba(0,0,0,0.12)]"
+            >
+              View The Menu
+            </Link>
           </div>
-          <div className="overflow-hidden">
-            <h1 className="hero-line font-display font-extrabold text-primary text-[15vw] md:text-[6vw] leading-[0.92] tracking-tight">SOMETHING</h1>
-          </div>
-          <div className="overflow-hidden">
-            <h1 className="hero-line font-display font-extrabold text-black text-[15vw] md:text-[6vw] leading-[0.92] tracking-tight">PINK.</h1>
-          </div>
-          <p className="hero-line mt-6 text-base md:text-lg text-black/70 max-w-sm font-body leading-relaxed">
-            Pink drinks, bold flavor, and a shop that feels like the fun part of the city.
-          </p>
-          <Link
-            to="/menu"
-            data-cursor-hover
-            className="hero-line inline-block mt-8 bg-black text-white font-semibold px-8 py-4 rounded-full hover:bg-primary hover:text-black transition-colors duration-300 shadow-[0_12px_40px_rgba(0,0,0,0.12)]"
-          >
-            View The Menu
-          </Link>
         </div>
+
+        {!showStatic && (
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 text-xs font-mono tracking-[0.3em] text-black/50 animate-bounce">
+            SCROLL
+          </div>
+        )}
       </div>
-
-      {!showStatic && (
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 text-xs font-mono tracking-[0.3em] text-black/50 animate-bounce">
-          SCROLL
-        </div>
-      )}
     </section>
   );
 }
