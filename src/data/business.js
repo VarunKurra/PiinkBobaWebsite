@@ -33,21 +33,21 @@ export const NAV_LINKS = [
 
 export const IMAGES = {
   heroFrames: [
-    "https://images.unsplash.com/photo-1571934811356-5cc061b6821f?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1529042410759-befb1204b468?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1570781899832-4f8fd5a37d40?auto=format&fit=crop&w=1200&q=80",
+    "/media/880f95ff2_generated_image.png",
+    "/media/53fdfc188_generated_image.png",
+    "/media/6c976184a_generated_image.png",
+    "/media/8a1e043d0_generated_image.png",
   ],
-  heroCup: "https://images.unsplash.com/photo-1571934811356-5cc061b6821f?auto=format&fit=crop&w=1400&q=80",
-  strawberryMatcha: "https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=1400&q=80",
-  brownSugar: "https://images.unsplash.com/photo-1529042410759-befb1204b468?auto=format&fit=crop&w=1400&q=80",
-  ubeLatte: "https://images.unsplash.com/photo-1570781899832-4f8fd5a37d40?auto=format&fit=crop&w=1400&q=80",
-  interior1: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=1400&q=80",
-  interior2: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1400&q=80",
-  ingredients: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=1400&q=80",
-  splash: "https://images.unsplash.com/photo-1499638673689-79a0b5115d87?auto=format&fit=crop&w=1400&q=80",
-  lineup: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=1400&q=80",
-  pour: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1400&q=80",
+  heroCup: "/media/17742f711_generated_image.png",
+  strawberryMatcha: "/media/aa51f3019_generated_image.png",
+  brownSugar: "/media/d5e026bac_generated_image.png",
+  ubeLatte: "/media/55edd68af_generated_image.png",
+  interior1: "/media/0ab0d6b44_generated_image.png",
+  interior2: "/media/896bd5490_generated_image.png",
+  ingredients: "/media/95c06b6bb_generated_image.png",
+  splash: "/media/bd5dbc0be_generated_image.png",
+  lineup: "/media/bb5a0eee8_generated_image.png",
+  pour: "/media/9869ecfb4_generated_image.png",
 };
 
 export const GALLERY_IMAGES = [

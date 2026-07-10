@@ -8,7 +8,7 @@ import useReducedMotion from "@/hooks/useReducedMotion";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const VIDEO_URL = "https://www.w3schools.com/html/mov_bbb.mp4";
+const VIDEO_URL = "/media/PiinkTeaVideo.mp4";
 
 export default function Hero() {
   const sectionRef = useRef(null);
@@ -94,7 +94,7 @@ export default function Hero() {
           preload="auto"
           autoPlay={showStatic}
           loop={showStatic}
-          poster="https://images.unsplash.com/photo-1571934811356-5cc061b6821f?auto=format&fit=crop&w=1600&q=80"
+          poster="/media/17742f711_generated_image.png"
           className="absolute inset-0 w-full h-full object-cover object-right"
         />
       </div>
