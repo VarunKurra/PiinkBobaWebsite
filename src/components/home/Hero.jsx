@@ -15,10 +15,33 @@ export default function Hero() {
   const videoRef = useRef(null);
   const reduced = useReducedMotion();
   const [isTouch, setIsTouch] = useState(false);
+  const [videoReady, setVideoReady] = useState(false);
+  const [navVisible, setNavVisible] = useState(false);
 
   useEffect(() => {
     setIsTouch(window.matchMedia("(pointer: coarse)").matches);
   }, []);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const handleCanPlay = () => {
+      setVideoReady(true);
+      video.currentTime = 0;
+      if (!reduced && !isTouch) {
+        video.play().catch(() => {});
+      }
+    };
+
+    if (video.readyState >= 2) {
+      handleCanPlay();
+    } else {
+      video.addEventListener("canplay", handleCanPlay, { once: true });
+    }
+
+    return () => video.removeEventListener("canplay", handleCanPlay);
+  }, [reduced, isTouch]);
 
   // Text appears immediately on page load — not tied to scroll
   useEffect(() => {
@@ -40,7 +63,6 @@ export default function Hero() {
     window.scrollTo(0, 0);
   }, []);
 
-  // Scroll pins the section and scrubs the video; page unlocks once video finishes
   useEffect(() => {
     if (reduced || isTouch) return;
     const video = videoRef.current;
@@ -56,29 +78,40 @@ export default function Hero() {
         trigger: sectionRef.current,
         start: "top top",
         end: "+=2800",
-        scrub: 0.5,
+        scrub: 0.8,
         pin: true,
+        anticipatePin: 1,
+        fastScrollEnd: true,
         onUpdate: (self) => {
           if (!video.duration) return;
           const target = self.progress * video.duration;
-          if (Math.abs(video.currentTime - target) > 0.05) {
+          if (Math.abs(video.currentTime - target) > 0.02) {
             video.currentTime = target;
           }
         },
       });
     };
 
-    // Wait until the video is fully buffered so scrubbing doesn't stall on network seeks
-    if (video.readyState >= 4) {
+    if (video.readyState >= 2) {
       setup();
     } else {
-      video.addEventListener("canplaythrough", setup, { once: true });
+      video.addEventListener("canplay", setup, { once: true });
     }
 
     return () => {
       trigger && trigger.kill();
-      video.removeEventListener("canplaythrough", setup);
+      video.removeEventListener("canplay", setup);
     };
+  }, [reduced, isTouch]);
+
+  useEffect(() => {
+    if (reduced || isTouch) return;
+    const onScroll = () => {
+      setNavVisible(window.scrollY > 80);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, [reduced, isTouch]);
 
   const showStatic = reduced || isTouch;
@@ -92,14 +125,15 @@ export default function Hero() {
           muted
           playsInline
           preload="auto"
-          autoPlay={showStatic}
-          loop={showStatic}
+          autoPlay={false}
+          loop={false}
           poster="/media/17742f711_generated_image.png"
-          className="absolute inset-0 w-full h-full object-cover object-right"
+          className={`absolute inset-0 w-full h-full object-cover object-right transition-opacity duration-700 ${videoReady ? "opacity-100" : "opacity-0"}`}
         />
       </div>
 
       <div className="absolute inset-0 bg-gradient-to-r from-white via-white/70 md:via-white/40 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white via-white/80 to-transparent" />
 
       <div className="relative z-20 h-full flex items-center px-6 md:px-16">
         <div className="w-full md:w-1/2">
@@ -112,13 +146,13 @@ export default function Hero() {
           <div className="overflow-hidden">
             <h1 className="hero-line font-display font-extrabold text-black text-[15vw] md:text-[6vw] leading-[0.92] tracking-tight">PINK.</h1>
           </div>
-          <p className="hero-line mt-6 text-base md:text-lg text-black/70 max-w-sm font-body">
-            Hand-shaken boba, real fruit purée, and grade-A matcha — made loud, made pink, made in Weldon Spring.
+          <p className="hero-line mt-6 text-base md:text-lg text-black/70 max-w-sm font-body leading-relaxed">
+            Pink drinks, bold flavor, and a shop that feels like the fun part of the city.
           </p>
           <Link
             to="/menu"
             data-cursor-hover
-            className="hero-line inline-block mt-8 bg-black text-white font-semibold px-8 py-4 rounded-full hover:bg-primary hover:text-black transition-colors duration-300"
+            className="hero-line inline-block mt-8 bg-black text-white font-semibold px-8 py-4 rounded-full hover:bg-primary hover:text-black transition-colors duration-300 shadow-[0_12px_40px_rgba(0,0,0,0.12)]"
           >
             View The Menu
           </Link>

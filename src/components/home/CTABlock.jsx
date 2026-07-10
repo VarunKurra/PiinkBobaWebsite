@@ -9,7 +9,7 @@ export default function CTABlock() {
       <div className="max-w-5xl mx-auto text-center">
         <ScrollReveal>
           <h2 className="font-display font-extrabold text-4xl md:text-7xl text-black leading-tight">
-            Your new favorite drink is waiting.
+            Come for the drink. Stay for the vibe.
           </h2>
         </ScrollReveal>
         <ScrollReveal delay={0.15}>

@@ -13,7 +13,7 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-black/10">
+      <header className={`sticky top-0 z-50 transition-all duration-500 ${location.pathname === "/" ? "bg-transparent border-transparent" : "bg-white/85 border-b border-black/10"}`}>
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6 md:px-10 h-20">
           <Magnetic>
             <Link to="/" className="font-display font-extrabold text-2xl tracking-tight text-black" data-cursor-hover>

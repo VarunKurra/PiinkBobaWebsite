@@ -2,6 +2,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -14,12 +15,25 @@ import AnimatedRoutes from '@/components/layout/AnimatedRoutes';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+  const [isPageReady, setIsPageReady] = useState(false);
 
-  // Show loading spinner while checking app public settings or auth
-  if (isLoadingPublicSettings || isLoadingAuth) {
+  useEffect(() => {
+    const timer = window.setTimeout(() => setIsPageReady(true), 600);
+    const handleLoad = () => setIsPageReady(true);
+    window.addEventListener('load', handleLoad);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener('load', handleLoad);
+    };
+  }, []);
+
+  if (!isPageReady || isLoadingPublicSettings || isLoadingAuth) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
+      <div className="fixed inset-0 z-[200] flex items-center justify-center bg-white">
+        <div className="text-center">
+          <div className="mx-auto mb-4 h-12 w-12 rounded-full border-4 border-black/10 border-t-black animate-spin" />
+          <p className="font-display text-xl text-black">Setting the scene…</p>
+        </div>
       </div>
     );
   }
@@ -44,7 +58,7 @@ const AuthenticatedApp = () => {
           <div className="min-h-screen flex flex-col bg-white">
             <CustomCursor />
             <Navbar />
-            <main className="flex-1">
+            <main className="flex-1 overflow-x-hidden">
               <AnimatedRoutes />
             </main>
             <Footer />
