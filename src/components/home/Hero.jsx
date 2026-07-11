@@ -3,19 +3,13 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import useReducedMotion from "@/hooks/useReducedMotion";
-
-gsap.registerPlugin(ScrollTrigger);
 
 const VIDEO_URL = "/media/PiinkTeaVideo.mp4";
 
 export default function Hero() {
   const sectionRef = useRef(null);
   const videoRef = useRef(null);
-  const triggerRef = useRef(null);
-  const rafRef = useRef(null);
-  const lastSeekTimeRef = useRef(0);
   const reduced = useReducedMotion();
   const [isTouch, setIsTouch] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
@@ -65,93 +59,6 @@ export default function Hero() {
     }
     window.scrollTo(0, 0);
   }, []);
-
-  useEffect(() => {
-    if (reduced || isTouch) return;
-
-    const section = sectionRef.current;
-    const video = videoRef.current;
-    if (!section || !video) return;
-
-    let handleMetadata;
-
-    const syncVideoToScroll = (progress) => {
-      if (!video.duration) return;
-
-      const targetTime = progress * video.duration;
-      if (Math.abs(targetTime - lastSeekTimeRef.current) < 0.001) return;
-
-      lastSeekTimeRef.current = targetTime;
-
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current);
-      }
-
-      rafRef.current = window.requestAnimationFrame(() => {
-        if (!video.duration) return;
-        const delta = Math.abs(video.currentTime - targetTime);
-        if (delta > 0.01 || targetTime === 0) {
-          video.currentTime = targetTime;
-        }
-      });
-    };
-
-    const setupScrollVideo = () => {
-      if (!video.duration) return;
-
-      video.currentTime = 0;
-      video.pause();
-
-      const pinDistance = Math.max(1800, Math.min(3200, Math.round(video.duration * 450)));
-
-      triggerRef.current = ScrollTrigger.create({
-        trigger: section,
-        start: "top top",
-        end: `+=${pinDistance}`,
-        scrub: 0.9,
-        pin: true,
-        pinSpacing: false,
-        anticipatePin: 0.1,
-        onUpdate: (self) => {
-          syncVideoToScroll(self.progress);
-        },
-        onLeaveBack: () => {
-          video.currentTime = 0;
-          video.pause();
-        },
-      });
-
-      requestAnimationFrame(() => ScrollTrigger.refresh());
-    };
-
-    if (video.readyState >= 2) {
-      setupScrollVideo();
-    } else {
-      handleMetadata = () => {
-        video.removeEventListener("loadedmetadata", handleMetadata);
-        setupScrollVideo();
-      };
-      video.addEventListener("loadedmetadata", handleMetadata, { once: true });
-    }
-
-    const refreshOnResize = () => ScrollTrigger.refresh();
-    window.addEventListener("resize", refreshOnResize);
-
-    return () => {
-      window.removeEventListener("resize", refreshOnResize);
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current);
-      }
-      if (triggerRef.current) {
-        triggerRef.current.kill();
-        triggerRef.current = null;
-      }
-      if (handleMetadata) {
-        video.removeEventListener("loadedmetadata", handleMetadata);
-      }
-      video.pause();
-    };
-  }, [reduced, isTouch]);
 
   const showStatic = reduced || isTouch;
 
