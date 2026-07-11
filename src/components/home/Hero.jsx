@@ -14,13 +14,14 @@ const VIDEO_URL = "/media/PiinkTeaVideo.mp4";
 
 // How many viewport-heights of scroll the video should consume while pinned.
 // Bigger number = slower/more precise scrub, longer pin. Tune to taste.
-const PIN_VIEWPORT_HEIGHTS = 3;
+const PIN_VIEWPORT_HEIGHTS = 2.7;
+// Slightly faster video progression per scroll while keeping the scrub smooth.
+const VIDEO_SCROLL_SPEED = 1.08;
+// Remove the very first 0.1s of the clip so the hero opens on the intended frame.
+const VIDEO_START_OFFSET = 0.1;
 // GSAP scrub smoothing (seconds of "catch up" lag). ~0.3-0.4 feels premium
 // without introducing noticeable delay.
 const SCRUB_SMOOTHING = 0.35;
-// Hero copy fades/lifts out over this fraction of the pin's total progress,
-// so the video becomes the sole focus once scrubbing begins in earnest.
-const COPY_FADE_OUT_PROGRESS = 0.22;
 
 export default function Hero() {
   const sectionRef = useRef(null);
@@ -51,6 +52,10 @@ export default function Hero() {
     if (!video) return;
 
     const markReady = () => {
+      const startTime = Math.min(VIDEO_START_OFFSET, Math.max(0, video.duration || 0));
+      if (video.currentTime !== startTime) {
+        video.currentTime = startTime;
+      }
       setVideoReady(true);
       video.pause();
     };
@@ -68,17 +73,19 @@ export default function Hero() {
     };
   }, []);
 
-  // Fade + lift the copy block out as the pin's scroll progress advances.
-  // Direct style writes (no React state) so it stays perfectly in sync with
-  // the same rAF/scrub cadence driving the video.
+  // Keep the hero copy visible throughout the interaction, but give it a gentle,
+  // continuous motion that feels like it is breathing with the video.
   const handleScrollProgress = useCallback((/** @type {number} */ progress) => {
     const copy = /** @type {HTMLDivElement | null} */ (copyRef.current);
     if (!copy) return;
-    const t = Math.min(1, progress / COPY_FADE_OUT_PROGRESS);
-    copy.style.opacity = String(1 - t);
-    copy.style.transform = `translateY(${-24 * t}px)`;
-    // Once fully faded, remove from hit-testing so it can't intercept clicks.
-    copy.style.pointerEvents = t >= 1 ? "none" : "auto";
+
+    const wobble = Math.sin(progress * Math.PI * 4 + 0.35) * 2.5;
+    const drift = Math.sin(progress * Math.PI * 2) * 1.8;
+    const sway = Math.sin(progress * Math.PI * 2.2) * 0.15;
+
+    copy.style.opacity = "1";
+    copy.style.transform = `translate3d(${drift}px, ${wobble}px, 0) rotate(${sway}deg)`;
+    copy.style.pointerEvents = "auto";
   }, []);
 
   // --- Scroll-pinned video: GSAP ScrollTrigger is the source of truth --
@@ -124,6 +131,12 @@ export default function Hero() {
       }
     };
 
+    const getTargetTime = (/** @type {number} */ progress) => {
+      const safeDuration = Math.max(0, state.duration - VIDEO_START_OFFSET);
+      const clampedProgress = Math.min(1, Math.max(0, progress * VIDEO_SCROLL_SPEED));
+      return VIDEO_START_OFFSET + clampedProgress * safeDuration;
+    };
+
     const setup = () => {
       if (cancelled) return;
       state.duration = video.duration || 0;
@@ -139,7 +152,7 @@ export default function Hero() {
         scrub: SCRUB_SMOOTHING,
         invalidateOnRefresh: true,
         onUpdate: (self) => {
-          state.targetTime = self.progress * state.duration;
+          state.targetTime = getTargetTime(self.progress);
           scheduleFrame();
           handleScrollProgress(self.progress);
         },
@@ -147,7 +160,7 @@ export default function Hero() {
           // Re-sync target to current progress on refresh/resize instead of
           // snapping the video back to frame 0.
           if (scrollTrigger) {
-            state.targetTime = scrollTrigger.progress * state.duration;
+            state.targetTime = getTargetTime(scrollTrigger.progress);
           }
         },
       });
