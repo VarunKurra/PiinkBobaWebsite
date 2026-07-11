@@ -14,14 +14,13 @@ const VIDEO_URL = "/media/PiinkTeaVideo.mp4";
 
 // How many viewport-heights of scroll the video should consume while pinned.
 // Bigger number = slower/more precise scrub, longer pin. Tune to taste.
-const PIN_VIEWPORT_HEIGHTS = 2.7;
-// Slightly faster video progression per scroll while keeping the scrub smooth.
-const VIDEO_SCROLL_SPEED = 1.08;
+const PIN_VIEWPORT_HEIGHTS = 2.5;
+// Increase the video progression a bit more so scrolling feels more responsive.
+const VIDEO_SCROLL_SPEED = 1.2;
 // Remove the very first 0.1s of the clip so the hero opens on the intended frame.
 const VIDEO_START_OFFSET = 0.1;
-// GSAP scrub smoothing (seconds of "catch up" lag). ~0.3-0.4 feels premium
-// without introducing noticeable delay.
-const SCRUB_SMOOTHING = 0.35;
+// Very light smoothing keeps the scrub feeling immediate and fluid.
+const SCRUB_SMOOTHING = 0.25;
 
 export default function Hero() {
   const sectionRef = useRef(null);
@@ -232,7 +231,7 @@ export default function Hero() {
         </div>
 
         <div className="absolute inset-0 bg-gradient-to-r from-white via-white/70 md:via-white/40 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white via-white/80 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white via-white/80 to-transparent" />
 
         <div className="relative z-20 flex h-full items-center px-6 md:px-16">
           <div ref={copyRef} className="w-full md:w-1/2 will-change-[opacity,transform]">
