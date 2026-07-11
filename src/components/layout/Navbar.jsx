@@ -7,17 +7,51 @@ import { NAV_LINKS, BUSINESS } from "@/data/business";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const [isHomeHeroOverlay, setIsHomeHeroOverlay] = useState(false);
   const location = useLocation();
+  const isHomePage = location.pathname === "/";
 
   useEffect(() => setOpen(false), [location.pathname]);
 
+  useEffect(() => {
+    if (!isHomePage) {
+      setIsHomeHeroOverlay(false);
+      return undefined;
+    }
+
+    const updateOverlayState = () => {
+      const transitionDistance = window.innerHeight * 3.2;
+      setIsHomeHeroOverlay(window.scrollY < transitionDistance);
+    };
+
+    updateOverlayState();
+    window.addEventListener("scroll", updateOverlayState, { passive: true });
+    window.addEventListener("resize", updateOverlayState);
+
+    return () => {
+      window.removeEventListener("scroll", updateOverlayState);
+      window.removeEventListener("resize", updateOverlayState);
+    };
+  }, [isHomePage]);
+
+  const overlayNav = isHomePage && isHomeHeroOverlay;
+  const headerClassName = overlayNav
+    ? "sticky top-0 z-50 bg-transparent backdrop-blur-none border-b border-transparent transition-colors duration-300"
+    : "sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-black/10 transition-colors duration-300";
+  const textClassName = overlayNav ? "text-white" : "text-black";
+  const linkClassName = overlayNav ? "text-white hover:bg-white/15" : "text-black hover:bg-secondary";
+  const activeLinkClassName = overlayNav ? "bg-white text-black" : "bg-black text-white";
+  const orderButtonClassName = overlayNav
+    ? "bg-white text-black hover:bg-white/90 hover:text-black"
+    : "bg-primary text-black hover:bg-black hover:text-white";
+
   return (
     <>
-      <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-black/10">
+      <header className={headerClassName}>
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6 md:px-10 h-20">
           <Magnetic>
-            <Link to="/" className="font-display font-extrabold text-2xl tracking-tight text-black" data-cursor-hover>
-              PI<span className="text-primary">I</span>NK
+            <Link to="/" className={`font-display font-extrabold text-2xl tracking-tight ${textClassName}`} data-cursor-hover>
+              PI<span className={overlayNav ? "text-white" : "text-primary"}>I</span>NK
             </Link>
           </Magnetic>
 
@@ -28,7 +62,7 @@ export default function Navbar() {
                   to={link.path}
                   data-cursor-hover
                   className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
-                    location.pathname === link.path ? "bg-black text-white" : "text-black hover:bg-secondary"
+                    location.pathname === link.path ? activeLinkClassName : linkClassName
                   }`}
                 >
                   {link.label}
@@ -44,7 +78,7 @@ export default function Navbar() {
                 target="_blank"
                 rel="noreferrer"
                 data-cursor-hover
-                className="bg-primary text-black font-bold text-sm px-6 py-3 rounded-full hover:bg-black hover:text-white transition-colors duration-300"
+                className={`${orderButtonClassName} font-bold text-sm px-6 py-3 rounded-full transition-colors duration-300`}
               >
                 Order Now
               </a>
@@ -53,7 +87,7 @@ export default function Navbar() {
 
           <button
             onClick={() => setOpen(true)}
-            className="md:hidden p-2 text-black"
+            className={`md:hidden p-2 ${textClassName}`}
             aria-label="Open menu"
             data-cursor-hover
           >

@@ -232,7 +232,7 @@ export default function Hero() {
         </div>
 
         <div className="absolute inset-0 bg-gradient-to-r from-white via-white/70 md:via-white/40 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white via-white/80 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white via-white/80 to-transparent" />
 
         <div className="relative z-20 flex h-full items-center px-6 md:px-16">
           <div ref={copyRef} className="w-full md:w-1/2 will-change-[opacity,transform]">
