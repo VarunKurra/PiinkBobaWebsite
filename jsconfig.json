@@ -8,6 +8,7 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "lib": ["esnext", "dom"],
+    "ignoreDeprecations": "6.0",
     "target": "esnext",
     "checkJs": true,
     "skipLibCheck": true,

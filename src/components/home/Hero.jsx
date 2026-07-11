@@ -1,4 +1,4 @@
-const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
+const db = /** @type {any} */ (globalThis).__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
 
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
@@ -9,7 +9,7 @@ const VIDEO_URL = "/media/PiinkTeaVideo.mp4";
 
 export default function Hero() {
   const sectionRef = useRef(null);
-  const videoRef = useRef(null);
+  const videoRef = /** @type {import("react").MutableRefObject<HTMLVideoElement | null>} */ (useRef(null));
   const reduced = useReducedMotion();
   const [isTouch, setIsTouch] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
@@ -19,7 +19,7 @@ export default function Hero() {
   }, []);
 
   useEffect(() => {
-    const video = videoRef.current;
+    const video = /** @type {HTMLVideoElement | null} */ (videoRef.current);
     if (!video) return;
 
     const resetVideo = () => {
@@ -77,15 +77,17 @@ export default function Hero() {
             poster="/poster.jpg"
             className={`absolute inset-0 h-full w-full object-cover object-right transition-opacity duration-700 ${videoReady ? "opacity-100" : "opacity-0"}`}
             onLoadedMetadata={() => {
-              if (videoRef.current) {
-                videoRef.current.currentTime = 0;
-                videoRef.current.pause();
+              const video = /** @type {HTMLVideoElement | null} */ (videoRef.current);
+              if (video) {
+                video.currentTime = 0;
+                video.pause();
               }
             }}
             onCanPlay={() => {
-              if (videoRef.current) {
-                videoRef.current.currentTime = 0;
-                videoRef.current.pause();
+              const video = /** @type {HTMLVideoElement | null} */ (videoRef.current);
+              if (video) {
+                video.currentTime = 0;
+                video.pause();
               }
             }}
           />
