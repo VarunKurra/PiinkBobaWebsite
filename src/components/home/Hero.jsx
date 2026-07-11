@@ -3,17 +3,13 @@ const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import useReducedMotion from "@/hooks/useReducedMotion";
-
-gsap.registerPlugin(ScrollTrigger);
 
 const VIDEO_URL = "/media/PiinkTeaVideo.mp4";
 
 export default function Hero() {
   const sectionRef = useRef(null);
   const videoRef = useRef(null);
-  const containerRef = useRef(null);
   const reduced = useReducedMotion();
   const [isTouch, setIsTouch] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
@@ -64,59 +60,11 @@ export default function Hero() {
     window.scrollTo(0, 0);
   }, []);
 
-  useEffect(() => {
-    if (reduced || isTouch) return;
-    const video = videoRef.current;
-    const container = containerRef.current;
-    if (!video || !container) return;
-
-    const setup = () => {
-      video.currentTime = 0;
-      video.pause();
-
-      ScrollTrigger.create({
-        trigger: container,
-        start: "top top",
-        end: "+=2200",
-        scrub: 0.5,
-        pin: true,
-        pinSpacing: false,
-        anticipatePin: 0.1,
-        onUpdate: (self) => {
-          if (!video.duration) return;
-          const target = self.progress * video.duration;
-          if (Math.abs(video.currentTime - target) > 0.02) {
-            video.currentTime = target;
-          }
-        },
-        onLeaveBack: () => {
-          video.currentTime = 0;
-          video.pause();
-        },
-      });
-    };
-
-    if (video.readyState >= 2) {
-      setup();
-    } else {
-      video.addEventListener("canplay", setup, { once: true });
-    }
-
-    return () => {
-      ScrollTrigger.getAll().forEach((st) => {
-        if (st.trigger === container) {
-          st.kill();
-        }
-      });
-      video.removeEventListener("canplay", setup);
-    };
-  }, [reduced, isTouch]);
-
   const showStatic = reduced || isTouch;
 
   return (
     <section ref={sectionRef} className="relative w-full overflow-hidden bg-white">
-      <div ref={containerRef} className="relative h-screen min-h-screen">
+      <div className="relative h-screen min-h-screen">
         <div className="absolute inset-0">
           <video
             ref={videoRef}
