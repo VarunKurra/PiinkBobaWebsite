@@ -76,15 +76,21 @@ export default function Hero() {
   // continuous motion that feels like it is breathing with the video.
   const handleScrollProgress = useCallback((/** @type {number} */ progress) => {
     const copy = /** @type {HTMLDivElement | null} */ (copyRef.current);
+    const fadeOverlay = /** @type {HTMLDivElement | null} */ (document.getElementById("hero-video-bottom-fade"));
     if (!copy) return;
 
     const wobble = Math.sin(progress * Math.PI * 4 + 0.35) * 2.5;
     const drift = Math.sin(progress * Math.PI * 2) * 1.8;
     const sway = Math.sin(progress * Math.PI * 2.2) * 0.15;
+    const fadeAmount = Math.min(1, Math.max(0, progress * 1.4));
 
     copy.style.opacity = "1";
     copy.style.transform = `translate3d(${drift}px, ${wobble}px, 0) rotate(${sway}deg)`;
     copy.style.pointerEvents = "auto";
+
+    if (fadeOverlay) {
+      fadeOverlay.style.opacity = String(fadeAmount);
+    }
   }, []);
 
   // --- Scroll-pinned video: GSAP ScrollTrigger is the source of truth --
@@ -231,7 +237,7 @@ export default function Hero() {
         </div>
 
         <div className="absolute inset-0 bg-gradient-to-r from-white via-white/70 md:via-white/40 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white via-white/80 to-transparent" />
+        <div id="hero-video-bottom-fade" className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white via-white/80 to-transparent opacity-0 transition-opacity duration-200" />
 
         <div className="relative z-20 flex h-full items-center px-6 md:px-16">
           <div ref={copyRef} className="w-full md:w-1/2 will-change-[opacity,transform]">
